@@ -63,17 +63,15 @@ canvas_result = st_canvas(
 )
 
 # 手描きのキャンバスから画像を取得した場合
-if canvas_result.image_data is not None:
+if st.button("予測する") and canvas_result.image_data is not None:
     img_array = canvas_result.image_data.astype("uint8")
-    img_pil = Image.fromarray(img_array)
+    if np.any(img_array != 255):
+        img_pil = Image.fromarray(img_array)
+        st.image(img_pil, caption="描いた画像", use_container_width=False)
 
-    st.image(img_pil, caption="描いた画像", use_container_width=False)
+        preds = predict_quickdraw(img_pil)
+        predicted_index = np.argmax(preds)
+        predicted_label = quickdraw_labels[predicted_index]
 
-    preds = predict_quickdraw(img_pil)
-    predicted_index = np.argmax(preds)
-    predicted_label = quickdraw_labels[predicted_index]
-
-    st.write("手描きで認識された物体:")
-    st.write(f"予測: {predicted_label}（信頼度: {np.max(preds)*100:.2f}％）")
-
-
+        st.write("手描きで認識された物体:")
+        st.write(f"予測: {predicted_label}（信頼度: {np.max(preds)*100:.2f}％）")
